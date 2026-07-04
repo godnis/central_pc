@@ -44,9 +44,9 @@ class MaquinaSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * Inventário de máquinas enviado pelo usuário (planilha).
-     * Linhas com dado essencial ilegível/ausente na planilha (processador ou
-     * setor em branco) foram deixadas de fora — ver aviso no chat.
+     * Inventário de máquinas levantado a partir da planilha de controle interno.
+     * Linhas com dado essencial ilegível/ausente (processador ou setor em
+     * branco) foram deixadas de fora e deverão ser complementadas depois.
      */
     public function run(): void
     {
