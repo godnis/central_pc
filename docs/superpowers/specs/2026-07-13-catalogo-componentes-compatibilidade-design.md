@@ -7,8 +7,40 @@ Fase: 1 de N (ver checklist em `README.md`)
 
 Hoje `Maquina` guarda hardware como texto livre: `processador` (string), `memoria_ram_gb` (int),
 `tipo_armazenamento` (enum HD/SSD) e `capacidade_armazenamento_gb` (int). Não há GPU, fonte ou
-gabinete. Não existem dados de produção reais a preservar (poucos registros de teste), então esta
-fase substitui esses campos por um catálogo estruturado, sem migração de dados legados.
+gabinete.
+
+**Correção em relação à primeira versão desta spec:** o banco tem 84 máquinas reais (seed
+`MaquinaSeeder`, oriundas de uma planilha de inventário real), não dados de teste descartáveis.
+Esta fase inclui uma migração automática desses dados para o novo catálogo (ver seção
+"Migração de dados legados").
+
+## Migração de dados legados
+
+Executada como parte das migrations desta fase, antes de remover as colunas antigas de `maquinas`:
+
+- **CPU**: para cada valor distinto de `processador`, cria um `Componente` (`categoria: cpu`,
+  `nome: <texto original>`, `specs: {}` vazio — não dá pra inferir `socket` a partir só do nome) e
+  vincula à máquina em `maquina_componentes`. Valores repetidos (ex.: várias máquinas com
+  "I5-3330") reaproveitam o mesmo `Componente`.
+- **RAM**: para cada valor distinto de `memoria_ram_gb` (ignorando nulos), cria um `Componente`
+  (`categoria: ram`, `nome: "{gb}GB (genérico, a completar)"`, `specs: {capacidade_gb: gb}`) e
+  vincula. Máquinas com `memoria_ram_gb` nulo ficam sem RAM vinculada.
+- **Armazenamento**: para cada par distinto `(tipo_armazenamento, capacidade_armazenamento_gb)`,
+  cria um `Componente` (`categoria: armazenamento`, `nome: "{tipo} {gb}GB (genérico, a
+  completar)"`, `specs: {tipo, capacidade_gb}`) e vincula.
+- **Placa-mãe**: não existe campo equivalente hoje, então nenhuma é criada/vinculada. Máquinas
+  migradas ficam sem placa-mãe até alguém completar manualmente pela tela de edição (a validação
+  de "categoria obrigatória" só se aplica ao salvar via formulário, não retroativamente).
+- **GPU**: menções a GPU hoje estão soltas dentro do texto de `observacoes` (ex.: "RTX 3060 /
+  192.168.1.8"), misturadas com IPs e notas. Não são extraídas automaticamente — texto arriscado
+  de parsear com regex. `observacoes` é mantido como está; quem quiser pode cadastrar a GPU
+  manualmente depois.
+
+Os `Componente`s criados por essa migração ficam com `specs` incompletas de propósito (sem
+`socket`, `tipos_ram_suportados` etc.) — eles não participam do motor de compatibilidade até
+alguém completar as specs pela tela de administração do catálogo. Isso é aceitável: o objetivo
+da migração é não perder o dado bruto, não retroativamente validar compatibilidade de máquinas
+já existentes.
 
 ## Objetivo
 
