@@ -12,32 +12,32 @@ Responsáveis: Vitor e Matheus
 
 ## Estado atual do sistema
 
-Hoje o sistema cadastra **Máquinas** vinculadas a um **Setor**, com campos de texto livre:
-processador, memória RAM (número), tipo/capacidade de armazenamento, sistema operacional e observações.
-Não existe catálogo de peças, motor de compatibilidade, histórico de alterações, testes automatizados ou API.
+O sistema cadastra **Máquinas** vinculadas a um **Setor**, com hardware montado a partir de um
+**catálogo estruturado de Componentes** (CPU, placa-mãe, RAM, armazenamento, GPU, fonte, gabinete)
+com motor de compatibilidade automático (ver [spec](docs/superpowers/specs/2026-07-13-catalogo-componentes-compatibilidade-design.md)).
+Ainda não há histórico de alterações, papéis/permissões, testes de feature/CI, ou API.
 
 ## Roadmap — Checklist de melhorias
 
-### 🧩 Catálogo de componentes e compatibilidade (prioridade principal)
+### 🧩 Catálogo de componentes e compatibilidade (prioridade principal) — ✅ fase 1 entregue
 
-- [ ] Criar tabelas estruturadas de componentes por categoria (Processador, Placa-mãe, RAM, Armazenamento, GPU, Fonte, Gabinete) em vez de campos de texto livre
-- [ ] Modelar atributos técnicos de cada componente (socket, tipo de memória, form factor, potência, interface de conexão etc.)
-- [ ] Motor de compatibilidade: ao selecionar um componente, filtrar automaticamente as opções compatíveis nos campos seguintes
-  - [ ] CPU → filtra placas-mãe pelo socket
-  - [ ] Placa-mãe → filtra tipo/velocidade de RAM suportada e quantidade de slots
-  - [ ] Placa-mãe/Gabinete → valida form factor (ATX, Micro-ATX, ITX)
-  - [ ] GPU/Fonte → valida potência mínima recomendada (wattagem)
-  - [ ] Armazenamento → filtra por interface suportada pela placa-mãe (SATA, NVMe)
-- [ ] Alertar visualmente quando uma combinação incompatível for selecionada (antes de salvar)
-- [ ] Permitir montar uma "configuração" de máquina a partir de componentes do catálogo, não apenas texto
-- [ ] Tela de administração do catálogo de peças (cadastrar/editar componentes e specs)
+- [x] Criar tabelas estruturadas de componentes por categoria (Processador, Placa-mãe, RAM, Armazenamento, GPU, Fonte, Gabinete) em vez de campos de texto livre
+- [x] Modelar atributos técnicos de cada componente (socket, tipo de memória, form factor, potência, interface de conexão etc.)
+- [x] Motor de compatibilidade: ao selecionar um componente, filtrar automaticamente as opções compatíveis nos campos seguintes
+  - [x] CPU → filtra placas-mãe pelo socket
+  - [x] Placa-mãe → filtra tipo de RAM suportada (validação de *quantidade* de slots ainda não é aplicada)
+  - [x] Placa-mãe/Gabinete → valida form factor (ATX, Micro-ATX, ITX)
+  - [x] GPU/Fonte → valida potência mínima recomendada (wattagem, como aviso não bloqueante)
+  - [x] Armazenamento → filtra por interface suportada pela placa-mãe (SATA, NVMe)
+- [x] Alertar visualmente quando uma combinação incompatível for selecionada (antes de salvar)
+- [x] Permitir montar uma "configuração" de máquina a partir de componentes do catálogo, não apenas texto
+- [x] Tela de administração do catálogo de peças (cadastrar/editar componentes e specs)
 
 ### 🖥️ Gestão de máquinas e ativos
 
 - [ ] Histórico de alterações por máquina (quem trocou qual peça, quando)
 - [ ] Registro de patrimônio/número de série e etiqueta de identificação (QR code opcional)
 - [ ] Upload de foto da máquina
-- [ ] Controle de garantia (data de compra, vencimento, fornecedor)
 - [ ] Status da máquina (ativa, em manutenção, baixada/descartada)
 - [ ] Vínculo opcional com usuário/colaborador responsável pela máquina
 - [ ] Soft delete (não apagar máquina definitivamente, permitir restaurar)
@@ -61,7 +61,7 @@ Não existe catálogo de peças, motor de compatibilidade, histórico de altera�
 ### 🧪 Qualidade e testes
 
 - [ ] Testes automatizados (Feature/Unit) para os fluxos de CRUD de Máquinas e Setores
-- [ ] Testes do motor de compatibilidade (casos de combinações válidas/inválidas)
+- [x] Testes do motor de compatibilidade (casos de combinações válidas/inválidas)
 - [ ] Pipeline de CI (rodar testes e lint a cada push/PR)
 - [ ] Padronização de código (Pint/PHP-CS-Fixer, ESLint se necessário)
 - [ ] Validação de formulários mais rica no frontend (feedback antes do submit)
@@ -69,16 +69,10 @@ Não existe catálogo de peças, motor de compatibilidade, histórico de altera�
 ### 🚀 Infraestrutura e operação
 
 - [ ] Documentar processo de instalação/deploy no README (setup local, migrations, seeders)
-- [ ] Seeders com dados de exemplo (setores e catálogo de componentes)
+- [x] Seeders com dados de exemplo (setores e catálogo de componentes)
 - [ ] Backups automáticos do banco de dados
 - [ ] Ambiente de staging separado de produção
 - [ ] Monitoramento de erros (ex: Sentry) e logs estruturados
-
-### 🌐 API e integrações
-
-- [ ] API REST para consulta/gestão de máquinas (uso futuro por outras ferramentas internas)
-- [ ] Integração com Active Directory/LDAP para autenticação (se aplicável ao ambiente)
-- [ ] Notificações (e-mail/Slack/Teams) para eventos como garantia vencendo ou máquina sem manutenção há muito tempo
 
 ### 🎨 Interface
 
