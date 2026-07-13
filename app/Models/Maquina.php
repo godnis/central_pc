@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\CategoriaComponente;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Maquina extends Model
 {
@@ -11,15 +14,23 @@ class Maquina extends Model
         'nome',
         'setor_id',
         'sistema_operacional',
-        'processador',
-        'memoria_ram_gb',
-        'tipo_armazenamento',
-        'capacidade_armazenamento_gb',
         'observacoes',
     ];
 
     public function setor(): BelongsTo
     {
         return $this->belongsTo(Setor::class);
+    }
+
+    public function maquinaComponentes(): HasMany
+    {
+        return $this->hasMany(MaquinaComponente::class);
+    }
+
+    public function componentesDaCategoria(CategoriaComponente $categoria): Collection
+    {
+        return $this->maquinaComponentes
+            ->filter(fn (MaquinaComponente $vinculo) => $vinculo->componente->categoria === $categoria)
+            ->pluck('componente');
     }
 }

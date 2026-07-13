@@ -57,6 +57,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Setor') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('SO') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Processador') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Placa-mãe') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('RAM') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Armazenamento') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Observações') }}</th>
@@ -65,13 +66,26 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @forelse ($maquinas as $maquina)
+                            @php
+                                $cpu = $maquina->componentesDaCategoria(\App\Enums\CategoriaComponente::Cpu)->first();
+                                $placaMae = $maquina->componentesDaCategoria(\App\Enums\CategoriaComponente::PlacaMae)->first();
+                                $rams = $maquina->componentesDaCategoria(\App\Enums\CategoriaComponente::Ram);
+                                $armazenamentos = $maquina->componentesDaCategoria(\App\Enums\CategoriaComponente::Armazenamento);
+                            @endphp
                             <tr>
                                 <td class="px-6 py-4">{{ $maquina->nome }}</td>
                                 <td class="px-6 py-4">{{ $maquina->setor->nome }}</td>
                                 <td class="px-6 py-4">{{ $maquina->sistema_operacional ?? '—' }}</td>
-                                <td class="px-6 py-4">{{ $maquina->processador }}</td>
-                                <td class="px-6 py-4">{{ $maquina->memoria_ram_gb ? $maquina->memoria_ram_gb.' GB' : '—' }}</td>
-                                <td class="px-6 py-4">{{ $maquina->tipo_armazenamento }} - {{ $maquina->capacidade_armazenamento_gb }} GB</td>
+                                <td class="px-6 py-4">{{ $cpu?->nome ?? '—' }}</td>
+                                <td class="px-6 py-4">
+                                    @if ($placaMae)
+                                        {{ $placaMae->nome }}
+                                    @else
+                                        <span class="text-amber-600">{{ __('a definir') }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">{{ $rams->pluck('nome')->join(', ') ?: '—' }}</td>
+                                <td class="px-6 py-4">{{ $armazenamentos->pluck('nome')->join(', ') ?: '—' }}</td>
                                 <td class="px-6 py-4 text-gray-500">{{ $maquina->observacoes ?? '—' }}</td>
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                                     <a href="{{ route('maquinas.edit', $maquina) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
@@ -85,7 +99,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-4 text-gray-500" colspan="8">{{ __('Nenhuma máquina cadastrada.') }}</td>
+                                <td class="px-6 py-4 text-gray-500" colspan="9">{{ __('Nenhuma máquina cadastrada.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

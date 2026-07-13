@@ -42,6 +42,12 @@ alguém completar as specs pela tela de administração do catálogo. Isso é ac
 da migração é não perder o dado bruto, não retroativamente validar compatibilidade de máquinas
 já existentes.
 
+**Resultado da migração em produção (2026-07-13):** 84 máquinas preservadas, 61 componentes
+genéricos criados (31 CPU, 9 RAM, 21 armazenamento), 249 vínculos em `maquina_componentes`.
+Backup prévio do banco salvo em `storage/backups/` (fora do controle de versão). Nenhuma placa-mãe
+foi criada, como esperado — as 84 máquinas migradas aparecem como "a definir" na coluna
+placa-mãe até serem completadas manualmente.
+
 ## Objetivo
 
 Ao cadastrar/editar uma máquina, o usuário escolhe componentes de um catálogo e o sistema filtra

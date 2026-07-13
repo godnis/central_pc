@@ -2,12 +2,23 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CategoriaComponente;
+use App\Models\Componente;
 use App\Models\Maquina;
 use App\Models\Setor;
 use Illuminate\Database\Seeder;
 
 class MaquinaSeeder extends Seeder
 {
+    /** @var array<string, Componente> componente CPU já criado, por nome */
+    private array $cpusPorNome = [];
+
+    /** @var array<int, Componente> componente RAM já criado, por capacidade em GB */
+    private array $ramsPorGb = [];
+
+    /** @var array<string, Componente> componente de armazenamento já criado, por "tipo|gb" */
+    private array $armazenamentosPorChave = [];
+
     /**
      * Mapeia a sigla do setor como aparece na planilha de inventário para o
      * nome exato já cadastrado em SetorSeeder (organograma oficial).
@@ -185,16 +196,52 @@ class MaquinaSeeder extends Seeder
         ];
 
         foreach ($maquinas as [$setorLabel, $nome, $processador, $ram, $tipo, $capacidade, $observacoes]) {
-            Maquina::create([
+            $maquina = Maquina::create([
                 'nome' => $nome,
                 'setor_id' => $this->resolverSetor($setorLabel)->id,
                 'sistema_operacional' => null,
-                'processador' => $processador,
-                'memoria_ram_gb' => $ram,
-                'tipo_armazenamento' => $tipo,
-                'capacidade_armazenamento_gb' => $capacidade,
                 'observacoes' => $observacoes,
             ]);
+
+            $this->vincularHardwareLegado($maquina, $processador, $ram, $tipo, $capacidade);
+        }
+    }
+
+    /**
+     * Converte os campos de texto livre da planilha original em componentes
+     * do catálogo (mesma lógica da migration de backfill), já que a coluna
+     * livre não existe mais em `maquinas`. Placa-mãe não é criada — não há
+     * esse dado na planilha original.
+     */
+    private function vincularHardwareLegado(Maquina $maquina, ?string $processador, ?int $ram, ?string $tipo, ?int $capacidade): void
+    {
+        if (filled($processador)) {
+            $nome = trim($processador);
+            $cpu = $this->cpusPorNome[$nome] ??= Componente::firstOrCreate(
+                ['categoria' => CategoriaComponente::Cpu->value, 'nome' => $nome],
+                ['specs' => [], 'ativo' => true]
+            );
+
+            $maquina->maquinaComponentes()->create(['componente_id' => $cpu->id, 'quantidade' => 1]);
+        }
+
+        if (! is_null($ram)) {
+            $componenteRam = $this->ramsPorGb[$ram] ??= Componente::firstOrCreate(
+                ['categoria' => CategoriaComponente::Ram->value, 'nome' => "{$ram}GB (genérico, a completar)"],
+                ['specs' => ['capacidade_gb' => $ram], 'ativo' => true]
+            );
+
+            $maquina->maquinaComponentes()->create(['componente_id' => $componenteRam->id, 'quantidade' => 1]);
+        }
+
+        if (filled($tipo) && ! is_null($capacidade)) {
+            $chave = "{$tipo}|{$capacidade}";
+            $armazenamento = $this->armazenamentosPorChave[$chave] ??= Componente::firstOrCreate(
+                ['categoria' => CategoriaComponente::Armazenamento->value, 'nome' => "{$tipo} {$capacidade}GB (genérico, a completar)"],
+                ['specs' => ['tipo' => $tipo, 'capacidade_gb' => $capacidade], 'ativo' => true]
+            );
+
+            $maquina->maquinaComponentes()->create(['componente_id' => $armazenamento->id, 'quantidade' => 1]);
         }
     }
 
