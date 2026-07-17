@@ -66,20 +66,16 @@
                     </div>
                 </div>
 
-                <div class="relative max-w-2xl">
-                    <h1 class="font-display text-5xl font-bold leading-[1.08] tracking-tight xl:text-6xl">
-                        Cada máquina<br>no seu lugar,<br>cada peça<br><span class="text-copper-400">compatível.</span>
-                    </h1>
-                    <p class="mt-6 max-w-md text-sm leading-relaxed text-brand-200/90">
-                        Inventário de máquinas por setor, catálogo estruturado de componentes
-                        e verificação automática de compatibilidade de hardware.
+                <div class="relative my-auto self-center text-center">
+                    <h1 class="font-display text-8xl font-bold tracking-tight xl:text-9xl">ATI</h1>
+                    <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.3em] text-brand-300">
+                        Assessoria de Tecnologia<br>da Informação
                     </p>
-                    <p class="mt-3 text-sm text-brand-200/70">
-                        Oferecimento: <span class="font-semibold text-copper-300">Vitor e Matheus</span>
-                    </p>
-                    <p class="mt-10 font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/80">
-                        ATI — Assessoria de Tecnologia da Informação
-                    </p>
+                </div>
+
+                <div class="relative">
+                    <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/80">{{ __('Oferecimento') }}</p>
+                    <p class="mt-1 font-display text-3xl font-bold tracking-tight text-copper-400">Vitor e Matheus</p>
                 </div>
             </div>
 
