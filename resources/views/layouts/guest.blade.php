@@ -74,6 +74,9 @@
                         Inventário de máquinas por setor, catálogo estruturado de componentes
                         e verificação automática de compatibilidade de hardware.
                     </p>
+                    <p class="mt-3 text-sm text-brand-200/70">
+                        Oferecimento: <span class="font-semibold text-copper-300">Vitor e Matheus</span>
+                    </p>
                     <p class="mt-10 font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/80">
                         ATI — Assessoria de Tecnologia da Informação
                     </p>
