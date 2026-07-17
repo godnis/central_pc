@@ -21,32 +21,82 @@
 
 <input type="hidden" name="_form_maquina_id" value="{{ $idAtual }}">
 
-<div>
-    <x-input-label for="nome" :value="__('Nome da máquina')" />
-    <x-text-input id="nome" name="nome" type="text" class="block mt-1 w-full"
-                  :value="$old('nome', $maquina->nome ?? '')" required autofocus />
-    <x-input-error :messages="$errors->get('nome')" class="mt-2" />
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+        <x-input-label for="nome" :value="__('Nome da máquina')" />
+        <x-text-input id="nome" name="nome" type="text" class="block mt-1 w-full"
+                      :value="$old('nome', $maquina->nome ?? '')" required autofocus />
+        <x-input-error :messages="$errors->get('nome')" class="mt-2" />
+    </div>
+
+    <div>
+        <x-input-label for="patrimonio" :value="__('Patrimônio (opcional)')" />
+        <x-text-input id="patrimonio" name="patrimonio" type="text" class="block mt-1 w-full"
+                      :value="$old('patrimonio', $maquina->patrimonio ?? '')" placeholder="Ex: PAT-00123" />
+        <x-input-error :messages="$errors->get('patrimonio')" class="mt-2" />
+    </div>
 </div>
 
-<div class="mt-4">
-    <x-input-label for="setor_id" :value="__('Setor')" />
-    <select id="setor_id" name="setor_id" class="block mt-1 w-full rounded-md border-gray-300" required>
-        <option value="">{{ __('Selecione um setor') }}</option>
-        @foreach ($setores as $setor)
-            <option value="{{ $setor->id }}" @selected($old('setor_id', $maquina->setor_id ?? '') == $setor->id)>
-                {{ $setor->nome }}
-            </option>
-        @endforeach
-    </select>
-    <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+    <div>
+        <x-input-label for="setor_id" :value="__('Setor')" />
+        <select id="setor_id" name="setor_id" class="block mt-1 w-full rounded-md border-gray-300" required>
+            <option value="">{{ __('Selecione um setor') }}</option>
+            @foreach ($setores as $setor)
+                <option value="{{ $setor->id }}" @selected($old('setor_id', $maquina->setor_id ?? '') == $setor->id)>
+                    {{ $setor->nome }}
+                </option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('setor_id')" class="mt-2" />
+    </div>
+
+    <div>
+        <x-input-label for="status" :value="__('Status')" />
+        <select id="status" name="status" class="block mt-1 w-full rounded-md border-gray-300" required>
+            @foreach ($statusList as $statusOpcao)
+                <option value="{{ $statusOpcao->value }}" @selected($old('status', $maquina->status?->value ?? 'ativa') === $statusOpcao->value)>
+                    {{ $statusOpcao->label() }}
+                </option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('status')" class="mt-2" />
+    </div>
 </div>
 
-<div class="mt-4">
-    <x-input-label for="sistema_operacional" :value="__('Sistema operacional')" />
-    <x-text-input id="sistema_operacional" name="sistema_operacional" type="text" class="block mt-1 w-full"
-                  :value="$old('sistema_operacional', $maquina->sistema_operacional ?? '')"
-                  placeholder="Ex: Windows 11" />
-    <x-input-error :messages="$errors->get('sistema_operacional')" class="mt-2" />
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+    <div>
+        <x-input-label for="sistema_operacional" :value="__('Sistema operacional')" />
+        <x-text-input id="sistema_operacional" name="sistema_operacional" type="text" class="block mt-1 w-full"
+                      :value="$old('sistema_operacional', $maquina->sistema_operacional ?? '')"
+                      placeholder="Ex: Windows 11" />
+        <x-input-error :messages="$errors->get('sistema_operacional')" class="mt-2" />
+    </div>
+
+    <div>
+        <x-input-label for="responsavel" :value="__('Responsável (opcional)')" />
+        <x-text-input id="responsavel" name="responsavel" type="text" class="block mt-1 w-full"
+                      :value="$old('responsavel', $maquina->responsavel ?? '')" placeholder="Ex: nome do colaborador" />
+        <x-input-error :messages="$errors->get('responsavel')" class="mt-2" />
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+    <div>
+        <x-input-label for="data_aquisicao" :value="__('Data de aquisição (opcional)')" />
+        <x-text-input id="data_aquisicao" name="data_aquisicao" type="date" class="block mt-1 w-full"
+                      :value="$old('data_aquisicao', optional($maquina->data_aquisicao ?? null)->format('Y-m-d'))" />
+        <x-input-error :messages="$errors->get('data_aquisicao')" class="mt-2" />
+    </div>
+
+    <div>
+        <x-input-label for="foto" :value="__('Foto da máquina (opcional)')" />
+        <input id="foto" name="foto" type="file" accept="image/*" class="block mt-1 w-full text-sm">
+        @if (($maquina->foto_path ?? null))
+            <img src="{{ Storage::url($maquina->foto_path) }}" alt="" class="mt-2 h-20 w-20 object-cover rounded-md border">
+        @endif
+        <x-input-error :messages="$errors->get('foto')" class="mt-2" />
+    </div>
 </div>
 
 <div class="mt-6 border-t pt-4"

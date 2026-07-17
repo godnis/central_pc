@@ -3,29 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CategoriaComponente;
+use App\Enums\StatusMaquina;
+use App\Http\Controllers\Concerns\GerenciaComponentesDaMaquina;
+use App\Models\Atividade;
 use App\Models\Componente;
 use App\Models\Maquina;
 use App\Models\Setor;
-use App\Services\CompatibilidadeService;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class MaquinaController extends Controller
 {
+    use GerenciaComponentesDaMaquina;
+
+    private const COLUNAS_ORDENAVEIS = ['nome', 'patrimonio', 'status', 'created_at'];
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): View
     {
         $setorId = $request->query('setor_id');
+        $status = $request->query('status');
+        $busca = trim((string) $request->query('busca'));
+        $sort = in_array($request->query('sort'), self::COLUNAS_ORDENAVEIS, true) ? $request->query('sort') : 'nome';
+        $dir = $request->query('dir') === 'desc' ? 'desc' : 'asc';
 
         $maquinas = Maquina::with(['setor', 'maquinaComponentes.componente'])
             ->when($setorId, fn ($query) => $query->where('setor_id', $setorId))
-            ->orderBy('nome')
-            ->get();
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($busca !== '', function ($query) use ($busca) {
+                $query->where(function ($query) use ($busca) {
+                    $termo = '%'.mb_strtolower($busca).'%';
+                    $query->whereRaw('LOWER(nome) LIKE ?', [$termo])
+                        ->orWhereRaw('LOWER(patrimonio) LIKE ?', [$termo])
+                        ->orWhereRaw('LOWER(sistema_operacional) LIKE ?', [$termo])
+                        ->orWhereHas('maquinaComponentes.componente', function ($query) use ($termo) {
+                            $query->whereRaw('LOWER(nome) LIKE ?', [$termo]);
+                        });
+                });
+            })
+            ->orderBy($sort, $dir)
+            ->paginate(20)
+            ->withQueryString();
 
         $totalGeral = Maquina::count();
 
@@ -34,9 +61,32 @@ class MaquinaController extends Controller
             ->filter(fn ($setor) => $setor->maquinas_count > 0)
             ->sortByDesc('maquinas_count');
 
-        $setores = Setor::orderBy('nome')->get();
+        $totalPorStatus = Maquina::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
-        return view('maquinas.index', compact('maquinas', 'totalGeral', 'totalPorSetor', 'setores', 'setorId'));
+        // Calculado em PHP (não em SQL) para funcionar igual em Postgres e SQLite (testes).
+        $mediaEmDias = Maquina::whereNotNull('data_aquisicao')->pluck('data_aquisicao')
+            ->avg(fn ($data) => $data->diffInDays(now()));
+        $idadeMediaAnos = $mediaEmDias ? round($mediaEmDias / 365, 1) : null;
+
+        $setores = Setor::orderBy('nome')->get();
+        $statusList = StatusMaquina::cases();
+
+        return view('maquinas.index', compact(
+            'maquinas', 'totalGeral', 'totalPorSetor', 'totalPorStatus', 'idadeMediaAnos',
+            'setores', 'setorId', 'status', 'busca', 'sort', 'dir', 'statusList'
+        ));
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Maquina $maquina): View
+    {
+        $maquina->load(['setor', 'maquinaComponentes.componente', 'atividades.user']);
+
+        return view('maquinas.show', compact('maquina'));
     }
 
     /**
@@ -46,8 +96,10 @@ class MaquinaController extends Controller
     {
         $setores = Setor::orderBy('nome')->get();
         $componentesPorCategoria = $this->componentesAtivosPorCategoria();
+        $statusList = StatusMaquina::cases();
+        $maquina = new Maquina;
 
-        return view('maquinas.create', compact('setores', 'componentesPorCategoria'));
+        return view('maquinas.create', compact('setores', 'componentesPorCategoria', 'statusList', 'maquina'));
     }
 
     /**
@@ -58,8 +110,9 @@ class MaquinaController extends Controller
         $dados = $this->validarDados($request);
         $this->validarCompatibilidade($dados['componentes']);
 
-        $maquina = Maquina::create($this->dadosDaMaquina($dados));
+        $maquina = Maquina::create($this->dadosDaMaquina($dados, $request));
         $this->sincronizarComponentes($maquina, $dados['componentes']);
+        Atividade::registrar($maquina, 'criado', "Máquina \"{$maquina->nome}\" cadastrada.");
 
         return redirect()->route('maquinas.index')->with('status', 'Máquina cadastrada com sucesso.');
     }
@@ -71,12 +124,13 @@ class MaquinaController extends Controller
     {
         $setores = Setor::orderBy('nome')->get();
         $componentesPorCategoria = $this->componentesAtivosPorCategoria();
+        $statusList = StatusMaquina::cases();
 
         $maquina->load('maquinaComponentes.componente');
         $selecionadosAtuais = $this->selecionadosAtuais($maquina);
 
         return view('maquinas.edit', compact(
-            'maquina', 'setores', 'componentesPorCategoria', 'selecionadosAtuais'
+            'maquina', 'setores', 'componentesPorCategoria', 'selecionadosAtuais', 'statusList'
         ));
     }
 
@@ -85,36 +139,150 @@ class MaquinaController extends Controller
      */
     public function update(Request $request, Maquina $maquina): RedirectResponse
     {
-        $dados = $this->validarDados($request);
+        $dados = $this->validarDados($request, $maquina);
         $this->validarCompatibilidade($dados['componentes']);
 
-        $maquina->update($this->dadosDaMaquina($dados));
+        $componentesAntes = $maquina->maquinaComponentes->pluck('quantidade', 'componente_id');
+
+        $maquina->update($this->dadosDaMaquina($dados, $request, $maquina));
         $this->sincronizarComponentes($maquina, $dados['componentes']);
+
+        $componentesDepois = $maquina->maquinaComponentes()->get()->pluck('quantidade', 'componente_id');
+        $descricao = $componentesAntes->toArray() === $componentesDepois->toArray()
+            ? "Dados de \"{$maquina->nome}\" atualizados."
+            : "Dados de \"{$maquina->nome}\" atualizados (componentes alterados).";
+        Atividade::registrar($maquina, 'atualizado', $descricao);
 
         return redirect()->route('maquinas.index')->with('status', 'Máquina atualizada com sucesso.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (soft delete).
      */
     public function destroy(Maquina $maquina): RedirectResponse
     {
+        Atividade::registrar($maquina, 'excluido', "Máquina \"{$maquina->nome}\" movida para a lixeira.");
         $maquina->delete();
 
         return redirect()->route('maquinas.index')->with('status', 'Máquina excluída com sucesso.');
     }
 
     /**
+     * Lista as máquinas excluídas (soft delete), para restaurar ou excluir de vez.
+     */
+    public function lixeira(): View
+    {
+        $maquinas = Maquina::onlyTrashed()->with('setor')->orderByDesc('deleted_at')->get();
+
+        return view('maquinas.lixeira', compact('maquinas'));
+    }
+
+    public function restaurar(int $id): RedirectResponse
+    {
+        $maquina = Maquina::onlyTrashed()->findOrFail($id);
+        $maquina->restore();
+        Atividade::registrar($maquina, 'atualizado', "Máquina \"{$maquina->nome}\" restaurada da lixeira.");
+
+        return redirect()->route('maquinas.lixeira')->with('status', 'Máquina restaurada com sucesso.');
+    }
+
+    public function excluirDefinitivamente(int $id): RedirectResponse
+    {
+        $maquina = Maquina::onlyTrashed()->findOrFail($id);
+
+        if ($maquina->foto_path) {
+            Storage::disk('public')->delete($maquina->foto_path);
+        }
+
+        $maquina->maquinaComponentes()->delete();
+        $nome = $maquina->nome;
+        $maquina->forceDelete();
+
+        return redirect()->route('maquinas.lixeira')
+            ->with('status', "Máquina \"{$nome}\" excluída definitivamente.");
+    }
+
+    /**
+     * Exporta a listagem filtrada em CSV.
+     */
+    public function export(Request $request): Response
+    {
+        $setorId = $request->query('setor_id');
+        $status = $request->query('status');
+
+        $maquinas = Maquina::with(['setor', 'maquinaComponentes.componente'])
+            ->when($setorId, fn ($query) => $query->where('setor_id', $setorId))
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->orderBy('nome')
+            ->get();
+
+        $linhas = [['Nome', 'Patrimônio', 'Setor', 'Status', 'SO', 'Processador', 'Placa-mãe', 'RAM', 'Armazenamento', 'Responsável', 'Observações']];
+
+        foreach ($maquinas as $maquina) {
+            $linhas[] = [
+                $maquina->nome,
+                $maquina->patrimonio,
+                $maquina->setor->nome,
+                $maquina->status->label(),
+                $maquina->sistema_operacional,
+                $maquina->componentesDaCategoria(CategoriaComponente::Cpu)->pluck('nome')->join(', '),
+                $maquina->componentesDaCategoria(CategoriaComponente::PlacaMae)->pluck('nome')->join(', '),
+                $maquina->componentesDaCategoria(CategoriaComponente::Ram)->pluck('nome')->join(', '),
+                $maquina->componentesDaCategoria(CategoriaComponente::Armazenamento)->pluck('nome')->join(', '),
+                $maquina->responsavel,
+                $maquina->observacoes,
+            ];
+        }
+
+        $csv = fopen('php://memory', 'w');
+        fwrite($csv, "\xEF\xBB\xBF"); // BOM, para acentos abrirem certo no Excel
+        foreach ($linhas as $linha) {
+            fputcsv($csv, $linha, ';');
+        }
+        rewind($csv);
+        $conteudo = stream_get_contents($csv);
+        fclose($csv);
+
+        return response($conteudo, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="maquinas_'.now()->format('Y-m-d').'.csv"',
+        ]);
+    }
+
+    /**
+     * Gera um QR code (SVG) que aponta para a página de detalhe da máquina —
+     * útil para colar uma etiqueta física no equipamento.
+     */
+    public function qrcode(Maquina $maquina): Response
+    {
+        $resultado = (new Builder(
+            writer: new SvgWriter,
+            data: route('maquinas.show', $maquina),
+            size: 220,
+            margin: 8,
+        ))->build();
+
+        return response($resultado->getString(), 200, [
+            'Content-Type' => $resultado->getMimeType(),
+        ]);
+    }
+
+    /**
      * Valida os dados do formulário de máquina, incluindo os componentes
      * selecionados do catálogo.
      */
-    private function validarDados(Request $request): array
+    private function validarDados(Request $request, ?Maquina $maquina = null): array
     {
         return $request->validate([
             'nome' => 'required|string|max:255',
+            'patrimonio' => ['nullable', 'string', 'max:100', Rule::unique('maquinas', 'patrimonio')->ignore($maquina?->id)],
             'setor_id' => 'required|exists:setores,id',
+            'status' => ['required', Rule::enum(StatusMaquina::class)],
             'sistema_operacional' => 'nullable|string|max:255',
             'observacoes' => 'nullable|string',
+            'responsavel' => 'nullable|string|max:255',
+            'data_aquisicao' => 'nullable|date',
+            'foto' => 'nullable|image|max:4096',
             'componentes.cpu' => 'required|integer|exists:componentes,id',
             'componentes.placa_mae' => 'required|integer|exists:componentes,id',
             'componentes.ram' => 'required|array|min:1',
@@ -129,102 +297,27 @@ class MaquinaController extends Controller
         ]);
     }
 
-    private function dadosDaMaquina(array $dados): array
+    private function dadosDaMaquina(array $dados, Request $request, ?Maquina $maquina = null): array
     {
-        return [
+        $dadosMaquina = [
             'nome' => $dados['nome'],
+            'patrimonio' => $dados['patrimonio'] ?? null,
             'setor_id' => $dados['setor_id'],
+            'status' => $dados['status'],
             'sistema_operacional' => $dados['sistema_operacional'] ?? null,
             'observacoes' => $dados['observacoes'] ?? null,
-        ];
-    }
-
-    /**
-     * Reaplica as regras de compatibilidade no backend (o formulário já
-     * restringe as opções via AJAX, mas isso não deve ser a única defesa).
-     */
-    private function validarCompatibilidade(array $componentes): void
-    {
-        $ids = collect([
-            $componentes['cpu'] ?? null,
-            $componentes['placa_mae'] ?? null,
-            $componentes['gpu'] ?? null,
-            $componentes['fonte'] ?? null,
-            $componentes['gabinete'] ?? null,
-        ])
-            ->merge(collect($componentes['ram'] ?? [])->pluck('componente_id'))
-            ->merge(collect($componentes['armazenamento'] ?? [])->pluck('componente_id'))
-            ->filter()
-            ->unique();
-
-        $porId = Componente::query()->whereIn('id', $ids)->get()->keyBy('id');
-        $buscar = fn (?int $id) => $id ? $porId->get($id) : null;
-
-        $selecionados = [
-            CategoriaComponente::Cpu->value => $buscar($componentes['cpu'] ?? null),
-            CategoriaComponente::PlacaMae->value => $buscar($componentes['placa_mae'] ?? null),
-            CategoriaComponente::Ram->value => collect($componentes['ram'] ?? [])
-                ->map(fn ($item) => $buscar($item['componente_id']))->filter()->values(),
-            CategoriaComponente::Armazenamento->value => collect($componentes['armazenamento'] ?? [])
-                ->map(fn ($item) => $buscar($item['componente_id']))->filter()->values(),
-            CategoriaComponente::Gpu->value => $buscar($componentes['gpu'] ?? null),
-            CategoriaComponente::Fonte->value => $buscar($componentes['fonte'] ?? null),
-            CategoriaComponente::Gabinete->value => $buscar($componentes['gabinete'] ?? null),
+            'responsavel' => $dados['responsavel'] ?? null,
+            'data_aquisicao' => $dados['data_aquisicao'] ?? null,
         ];
 
-        $service = app(CompatibilidadeService::class);
-        $erros = [];
-
-        foreach ([CategoriaComponente::Cpu, CategoriaComponente::PlacaMae, CategoriaComponente::Ram, CategoriaComponente::Armazenamento, CategoriaComponente::Gabinete] as $categoria) {
-            $valor = $selecionados[$categoria->value];
-            $itens = $valor instanceof Collection ? $valor : collect($valor ? [$valor] : []);
-
-            if ($itens->isEmpty()) {
-                continue;
+        if ($request->hasFile('foto')) {
+            if ($maquina?->foto_path) {
+                Storage::disk('public')->delete($maquina->foto_path);
             }
-
-            // Array puro (sem passar por Collection::toArray(), que chamaria
-            // Componente::toArray() e transformaria os models em arrays).
-            $outrasSelecoes = $selecionados;
-            unset($outrasSelecoes[$categoria->value]);
-            $idsCompativeis = $service->componentesCompativeis($outrasSelecoes, $categoria)->pluck('id');
-
-            foreach ($itens as $item) {
-                if (! $idsCompativeis->contains($item->id)) {
-                    $erros["componentes.{$categoria->value}"] = 'O componente selecionado para '
-                        .$categoria->label().' não é compatível com os demais componentes escolhidos.';
-                    break;
-                }
-            }
+            $dadosMaquina['foto_path'] = $request->file('foto')->store('maquinas', 'public');
         }
 
-        if ($erros) {
-            throw ValidationException::withMessages($erros);
-        }
-    }
-
-    private function sincronizarComponentes(Maquina $maquina, array $componentes): void
-    {
-        $maquina->maquinaComponentes()->delete();
-
-        $linhas = [];
-
-        foreach ([CategoriaComponente::Cpu, CategoriaComponente::PlacaMae, CategoriaComponente::Gpu, CategoriaComponente::Fonte, CategoriaComponente::Gabinete] as $categoria) {
-            $id = $componentes[$categoria->value] ?? null;
-            if ($id) {
-                $linhas[] = ['componente_id' => $id, 'quantidade' => 1];
-            }
-        }
-
-        foreach ([CategoriaComponente::Ram, CategoriaComponente::Armazenamento] as $categoria) {
-            foreach ($componentes[$categoria->value] ?? [] as $item) {
-                $linhas[] = ['componente_id' => $item['componente_id'], 'quantidade' => $item['quantidade']];
-            }
-        }
-
-        foreach ($linhas as $linha) {
-            $maquina->maquinaComponentes()->create($linha);
-        }
+        return $dadosMaquina;
     }
 
     /**

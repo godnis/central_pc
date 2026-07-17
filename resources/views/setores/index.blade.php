@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
             {{ __('Setores') }}
         </h2>
     </x-slot>
@@ -14,11 +14,13 @@
                 </div>
             @endif
 
-            <div class="mb-4">
-                <a href="{{ route('setores.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
-                    {{ __('Novo setor') }}
-                </a>
-            </div>
+            @can('editar')
+                <div class="mb-4">
+                    <a href="{{ route('setores.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
+                        {{ __('Novo setor') }}
+                    </a>
+                </div>
+            @endcan
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -33,13 +35,17 @@
                             <tr>
                                 <td class="px-6 py-4">{{ $setor->nome }}</td>
                                 <td class="px-6 py-4 text-right space-x-2">
-                                    <a href="{{ route('setores.edit', $setor) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
-                                    <form action="{{ route('setores.destroy', $setor) }}" method="POST" class="inline"
-                                          onsubmit="return confirm('{{ __('Excluir este setor?') }}');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">{{ __('Excluir') }}</button>
-                                    </form>
+                                    @can('editar')
+                                        <a href="{{ route('setores.edit', $setor) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
+                                    @endcan
+                                    @can('excluir')
+                                        <form action="{{ route('setores.destroy', $setor) }}" method="POST" class="inline"
+                                              onsubmit="return confirm('{{ __('Excluir este setor?') }}');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">{{ __('Excluir') }}</button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

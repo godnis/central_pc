@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'notificacoes' => [
+        // Webhook genérico (Slack Incoming Webhook, Teams, etc.) para os
+        // alertas de manutenção preventiva. Vazio = notificação pulada.
+        'webhook_url' => env('NOTIFICACOES_WEBHOOK_URL'),
+    ],
+
 ];

@@ -1,3 +1,107 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Retrofit de modo escuro: a maior parte das telas foi construída com a
+ * paleta cinza/branca padrão do Breeze, sem variantes dark: espalhadas em
+ * cada elemento. Em vez de anotar centenas de elementos individualmente,
+ * sobrescrevemos aqui as classes estruturais mais usadas (fundo, texto,
+ * bordas) quando a raiz do documento tem a classe `dark` — cobertura ampla
+ * e consistente com uma mudança centralizada. Usamos `color`/`background-color`
+ * diretos (não @apply) porque alguns mapeamentos são "trocas" entre duas
+ * classes e o @apply do Tailwind acusa dependência circular nesse caso.
+ */
+@layer base {
+    /* @tailwindcss/forms estiliza os controles nativos com fundo branco
+     * fixo — sem isso, todo select/input/textarea fica ilegível no escuro. */
+    .dark select,
+    .dark input[type='text'],
+    .dark input[type='email'],
+    .dark input[type='password'],
+    .dark input[type='number'],
+    .dark input[type='date'],
+    .dark input[type='search'],
+    .dark input[type='file'],
+    .dark textarea {
+        background-color: theme('colors.gray.700');
+        border-color: theme('colors.gray.600');
+        color: theme('colors.gray.100');
+    }
+
+    .dark input[type='checkbox'],
+    .dark input[type='radio'] {
+        background-color: theme('colors.gray.700');
+        border-color: theme('colors.gray.500');
+    }
+
+    .dark ::placeholder {
+        color: theme('colors.gray.400');
+    }
+}
+
+@layer utilities {
+    .dark .bg-white {
+        background-color: theme('colors.gray.800');
+    }
+    .dark .bg-gray-50 {
+        background-color: theme('colors.gray.700');
+    }
+    .dark .bg-gray-100 {
+        background-color: theme('colors.gray.900');
+    }
+    .dark .bg-gray-200 {
+        background-color: theme('colors.gray.700');
+    }
+    .dark .text-gray-400 {
+        color: theme('colors.gray.500');
+    }
+    .dark .text-gray-500 {
+        color: theme('colors.gray.400');
+    }
+    .dark .text-gray-600 {
+        color: theme('colors.gray.300');
+    }
+    .dark .text-gray-700 {
+        color: theme('colors.gray.200');
+    }
+    .dark .text-gray-800 {
+        color: theme('colors.gray.100');
+    }
+    .dark .text-gray-900 {
+        color: theme('colors.gray.50');
+    }
+    .dark .border-gray-200 {
+        border-color: theme('colors.gray.700');
+    }
+    .dark .border-gray-300 {
+        border-color: theme('colors.gray.600');
+    }
+    .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+        border-color: theme('colors.gray.700');
+    }
+    .dark .hover\:bg-gray-100:hover {
+        background-color: theme('colors.gray.700');
+    }
+    .dark .hover\:bg-gray-200:hover {
+        background-color: theme('colors.gray.600');
+    }
+    .dark .hover\:bg-gray-50:hover {
+        background-color: theme('colors.gray.700');
+    }
+    .dark .hover\:text-gray-700:hover {
+        color: theme('colors.gray.200');
+    }
+    .dark .hover\:text-gray-800:hover {
+        color: theme('colors.gray.100');
+    }
+    .dark .hover\:border-gray-300:hover {
+        border-color: theme('colors.gray.600');
+    }
+    .dark .focus\:bg-gray-100:focus {
+        background-color: theme('colors.gray.700');
+    }
+    .dark .focus\:text-gray-700:focus {
+        color: theme('colors.gray.200');
+    }
+}

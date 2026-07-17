@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, escuro: document.documentElement.classList.contains('dark') }" class="bg-white border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -21,11 +21,25 @@
                     <x-nav-link :href="route('componentes.index')" :active="request()->routeIs('componentes.*')">
                         {{ __('Componentes') }}
                     </x-nav-link>
+                    @can('excluir')
+                        <x-nav-link :href="route('tokens.index')" :active="request()->routeIs('tokens.*')">
+                            {{ __('Tokens de API') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
+                <button type="button"
+                        @click="escuro = ! escuro; document.documentElement.classList.toggle('dark', escuro); localStorage.setItem('tema', escuro ? 'escuro' : 'claro');"
+                        class="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        :aria-label="escuro ? '{{ __('Ativar modo claro') }}' : '{{ __('Ativar modo escuro') }}'"
+                        :title="escuro ? '{{ __('Ativar modo claro') }}' : '{{ __('Ativar modo escuro') }}'">
+                    <span x-show="!escuro" aria-hidden="true">🌙</span>
+                    <span x-show="escuro" aria-hidden="true">☀️</span>
+                </button>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -78,6 +92,11 @@
             <x-responsive-nav-link :href="route('componentes.index')" :active="request()->routeIs('componentes.*')">
                 {{ __('Componentes') }}
             </x-responsive-nav-link>
+            @can('excluir')
+                <x-responsive-nav-link :href="route('tokens.index')" :active="request()->routeIs('tokens.*')">
+                    {{ __('Tokens de API') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->
@@ -88,6 +107,13 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                <button type="button"
+                        @click="escuro = ! escuro; document.documentElement.classList.toggle('dark', escuro); localStorage.setItem('tema', escuro ? 'escuro' : 'claro');"
+                        class="block w-full text-start px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <span x-show="!escuro">🌙 {{ __('Modo escuro') }}</span>
+                    <span x-show="escuro">☀️ {{ __('Modo claro') }}</span>
+                </button>
+
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
             {{ __('Catálogo de componentes') }}
         </h2>
     </x-slot>
@@ -24,9 +24,11 @@
                     </select>
                 </form>
 
-                <a href="{{ route('componentes.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
-                    {{ __('Novo componente') }}
-                </a>
+                @can('editar')
+                    <a href="{{ route('componentes.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
+                        {{ __('Novo componente') }}
+                    </a>
+                @endcan
             </div>
 
             <div class="bg-white overflow-x-auto shadow-sm sm:rounded-lg">
@@ -54,13 +56,17 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                    <a href="{{ route('componentes.edit', $componente) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
-                                    <form action="{{ route('componentes.destroy', $componente) }}" method="POST" class="inline"
-                                          onsubmit="return confirm('{{ __('Excluir este componente?') }}');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:underline">{{ __('Excluir') }}</button>
-                                    </form>
+                                    @can('editar')
+                                        <a href="{{ route('componentes.edit', $componente) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
+                                    @endcan
+                                    @can('excluir')
+                                        <form action="{{ route('componentes.destroy', $componente) }}" method="POST" class="inline"
+                                              onsubmit="return confirm('{{ __('Excluir este componente?') }}');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">{{ __('Excluir') }}</button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CategoriaComponente;
+use App\Http\Controllers\Concerns\ValidaDadosDeComponente;
+use App\Models\Atividade;
 use App\Models\Componente;
 use App\Services\CompatibilidadeService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +15,8 @@ use Illuminate\View\View;
 
 class ComponenteController extends Controller
 {
+    use ValidaDadosDeComponente;
+
     /**
      * Display a listing of the resource.
      */
@@ -47,7 +51,8 @@ class ComponenteController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        Componente::create($this->validarDados($request));
+        $componente = Componente::create($this->validarDadosComponente($request));
+        Atividade::registrar($componente, 'criado', "Componente \"{$componente->nome}\" cadastrado no catálogo.");
 
         return redirect()->route('componentes.index')->with('status', 'Componente cadastrado com sucesso.');
     }
@@ -67,7 +72,8 @@ class ComponenteController extends Controller
      */
     public function update(Request $request, Componente $componente): RedirectResponse
     {
-        $componente->update($this->validarDados($request));
+        $componente->update($this->validarDadosComponente($request));
+        Atividade::registrar($componente, 'atualizado', "Componente \"{$componente->nome}\" atualizado.");
 
         return redirect()->route('componentes.index')->with('status', 'Componente atualizado com sucesso.');
     }
@@ -77,6 +83,7 @@ class ComponenteController extends Controller
      */
     public function destroy(Componente $componente): RedirectResponse
     {
+        Atividade::registrar($componente, 'excluido', "Componente \"{$componente->nome}\" excluído do catálogo.");
         $componente->delete();
 
         return redirect()->route('componentes.index')->with('status', 'Componente excluído com sucesso.');
@@ -113,42 +120,5 @@ class ComponenteController extends Controller
             ]),
             'aviso_fonte' => $avisoFonte,
         ]);
-    }
-
-    /**
-     * Valida os dados do formulário de componente, incluindo os campos
-     * dinâmicos de `specs` conforme a categoria selecionada.
-     */
-    private function validarDados(Request $request): array
-    {
-        $dados = $request->validate([
-            'categoria' => ['required', Rule::enum(CategoriaComponente::class)],
-            'nome' => 'required|string|max:255',
-            'fabricante' => 'nullable|string|max:255',
-        ]);
-
-        $categoria = CategoriaComponente::from($dados['categoria']);
-
-        $dados['ativo'] = $request->boolean('ativo', true);
-        $dados['specs'] = $this->extrairSpecs($request, $categoria);
-
-        return $dados;
-    }
-
-    private function extrairSpecs(Request $request, CategoriaComponente $categoria): array
-    {
-        $specs = [];
-
-        foreach ($categoria->camposDeSpecs() as $campo => $tipo) {
-            $valor = $request->input("specs.{$campo}");
-
-            $specs[$campo] = match ($tipo) {
-                'array' => array_values(array_filter((array) $valor, fn ($item) => filled($item))),
-                'integer' => filled($valor) ? (int) $valor : null,
-                default => filled($valor) ? (string) $valor : null,
-            };
-        }
-
-        return $specs;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Atividade;
 use App\Models\Setor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,7 +37,8 @@ class SetorController extends Controller
             'nome' => 'required|string|max:255',
         ]);
 
-        Setor::create($dados);
+        $setor = Setor::create($dados);
+        Atividade::registrar($setor, 'criado', "Setor \"{$setor->nome}\" criado.");
 
         return redirect()->route('setores.index')->with('status', 'Setor criado com sucesso.');
     }
@@ -59,6 +61,7 @@ class SetorController extends Controller
         ]);
 
         $setor->update($dados);
+        Atividade::registrar($setor, 'atualizado', "Setor atualizado para \"{$setor->nome}\".");
 
         return redirect()->route('setores.index')->with('status', 'Setor atualizado com sucesso.');
     }
@@ -73,6 +76,7 @@ class SetorController extends Controller
                 ->with('status', 'Não é possível excluir um setor que ainda tem máquinas cadastradas.');
         }
 
+        Atividade::registrar($setor, 'excluido', "Setor \"{$setor->nome}\" excluído.");
         $setor->delete();
 
         return redirect()->route('setores.index')->with('status', 'Setor excluído com sucesso.');
