@@ -16,7 +16,7 @@
 
             <div class="flex items-center justify-between">
                 <form action="{{ route('componentes.index') }}" method="GET" class="flex items-center gap-2">
-                    <select name="categoria" class="rounded-md border-gray-300 text-sm" onchange="this.form.submit()">
+                    <select name="categoria" class="rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" onchange="this.form.submit()">
                         <option value="">{{ __('Todas as categorias') }}</option>
                         @foreach ($categorias as $cat)
                             <option value="{{ $cat->value }}" @selected($categoriaFiltro == $cat->value)>{{ $cat->label() }}</option>

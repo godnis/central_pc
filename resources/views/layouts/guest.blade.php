@@ -66,16 +66,16 @@
                     </div>
                 </div>
 
-                <div class="relative max-w-md">
-                    <h1 class="font-display text-3xl font-bold leading-snug tracking-tight">
-                        Cada máquina no seu lugar,<br>cada peça compatível.
+                <div class="relative max-w-2xl">
+                    <h1 class="font-display text-5xl font-bold leading-[1.08] tracking-tight xl:text-6xl">
+                        Cada máquina<br>no seu lugar,<br>cada peça<br><span class="text-copper-400">compatível.</span>
                     </h1>
-                    <p class="mt-4 text-sm leading-relaxed text-brand-200/90">
+                    <p class="mt-6 max-w-md text-sm leading-relaxed text-brand-200/90">
                         Inventário de máquinas por setor, catálogo estruturado de componentes
                         e verificação automática de compatibilidade de hardware.
                     </p>
-                    <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/70">
-                        Assessoria de Tecnologia da Informação
+                    <p class="mt-10 font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/80">
+                        ATI — Assessoria de Tecnologia da Informação
                     </p>
                 </div>
             </div>

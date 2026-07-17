@@ -17,11 +17,11 @@
             {{-- Cards de resumo --}}
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div class="bg-white shadow-sm rounded-lg p-4">
-                    <p class="text-sm text-gray-500">{{ __('Total de máquinas') }}</p>
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500">{{ __('Total de máquinas') }}</p>
                     <p class="text-2xl font-semibold text-gray-800">{{ $totalGeral }}</p>
                 </div>
                 <div class="bg-white shadow-sm rounded-lg p-4">
-                    <p class="text-sm text-gray-500 mb-1">{{ __('Por status') }}</p>
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500 mb-2">{{ __('Por status') }}</p>
                     <div class="flex flex-wrap gap-1">
                         @foreach ($statusList as $statusOpcao)
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">
@@ -31,11 +31,11 @@
                     </div>
                 </div>
                 <div class="bg-white shadow-sm rounded-lg p-4">
-                    <p class="text-sm text-gray-500">{{ __('Idade média do parque') }}</p>
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500">{{ __('Idade média do parque') }}</p>
                     <p class="text-2xl font-semibold text-gray-800">{{ $idadeMediaAnos !== null ? $idadeMediaAnos.' anos' : '—' }}</p>
                 </div>
                 <div class="bg-white shadow-sm rounded-lg p-4 min-w-0">
-                    <p class="text-sm text-gray-500 mb-2">{{ __('Total por setor') }}</p>
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-gray-500 mb-2">{{ __('Total por setor') }}</p>
                     <div class="flex flex-wrap gap-1 min-w-0 max-h-16 overflow-y-auto">
                         @foreach ($totalPorSetor as $setor)
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">
@@ -50,14 +50,14 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <form action="{{ route('maquinas.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
                     <input type="text" name="busca" value="{{ $busca }}" placeholder="{{ __('Buscar por nome, patrimônio, SO, componente…') }}"
-                           class="rounded-md border-gray-300 text-sm w-64">
-                    <select name="setor_id" class="rounded-md border-gray-300 text-sm" onchange="this.form.submit()">
+                           class="rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm w-64">
+                    <select name="setor_id" class="rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" onchange="this.form.submit()">
                         <option value="">{{ __('Todos os setores') }}</option>
                         @foreach ($setores as $setor)
                             <option value="{{ $setor->id }}" @selected($setorId == $setor->id)>{{ $setor->nome }}</option>
                         @endforeach
                     </select>
-                    <select name="status" class="rounded-md border-gray-300 text-sm" onchange="this.form.submit()">
+                    <select name="status" class="rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" onchange="this.form.submit()">
                         <option value="">{{ __('Todos os status') }}</option>
                         @foreach ($statusList as $statusOpcao)
                             <option value="{{ $statusOpcao->value }}" @selected($status == $statusOpcao->value)>{{ $statusOpcao->label() }}</option>

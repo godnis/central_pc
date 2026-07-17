@@ -21,6 +21,8 @@
 
 <input type="hidden" name="_form_maquina_id" value="{{ $idAtual }}">
 
+<p class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-4">{{ __('Identificação') }}</p>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div>
         <x-input-label for="nome" :value="__('Nome da máquina')" />
@@ -40,7 +42,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
     <div>
         <x-input-label for="setor_id" :value="__('Setor')" />
-        <select id="setor_id" name="setor_id" class="block mt-1 w-full rounded-md border-gray-300" required>
+        <select id="setor_id" name="setor_id" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500" required>
             <option value="">{{ __('Selecione um setor') }}</option>
             @foreach ($setores as $setor)
                 <option value="{{ $setor->id }}" @selected($old('setor_id', $maquina->setor_id ?? '') == $setor->id)>
@@ -53,7 +55,7 @@
 
     <div>
         <x-input-label for="status" :value="__('Status')" />
-        <select id="status" name="status" class="block mt-1 w-full rounded-md border-gray-300" required>
+        <select id="status" name="status" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500" required>
             @foreach ($statusList as $statusOpcao)
                 <option value="{{ $statusOpcao->value }}" @selected($old('status', $maquina->status?->value ?? 'ativa') === $statusOpcao->value)>
                     {{ $statusOpcao->label() }}
@@ -91,23 +93,24 @@
 
     <div>
         <x-input-label for="foto" :value="__('Foto da máquina (opcional)')" />
-        <input id="foto" name="foto" type="file" accept="image/*" class="block mt-1 w-full text-sm">
+        <input id="foto" name="foto" type="file" accept="image/*"
+               class="block mt-1 w-full text-sm text-gray-500 file:me-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900 dark:file:text-brand-200 dark:hover:file:bg-brand-800">
         @if (($maquina->foto_path ?? null))
-            <img src="{{ Storage::url($maquina->foto_path) }}" alt="" class="mt-2 h-20 w-20 object-cover rounded-md border">
+            <img src="{{ Storage::url($maquina->foto_path) }}" alt="" class="mt-2 h-20 w-20 object-cover rounded-lg border border-gray-200">
         @endif
         <x-input-error :messages="$errors->get('foto')" class="mt-2" />
     </div>
 </div>
 
-<div class="mt-6 border-t pt-4"
+<div class="mt-8 border-t border-gray-200 pt-6"
      x-data="maquinaComponentesForm({
          componentesIniciais: @js($componentesPorCategoria),
          selecionados: @js($selecionadosIniciais),
          compativeisUrl: '{{ route('componentes.compativeis') }}',
      })">
     <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-700">{{ __('Componentes') }}</h3>
-        <a href="{{ route('componentes.create') }}" target="_blank" class="text-xs text-brand-600 hover:underline">
+        <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600">{{ __('Hardware') }}</p>
+        <a href="{{ route('componentes.create') }}" target="_blank" class="text-xs font-medium text-brand-600 hover:underline">
             {{ __('+ cadastrar componente no catálogo') }}
         </a>
     </div>
@@ -120,7 +123,7 @@
     <div class="mt-3">
         <x-input-label for="componente_cpu" :value="__('Processador')" />
         <select id="componente_cpu" x-model.number="selecionados.cpu" @change="onCpuChange()"
-                name="componentes[cpu]" class="block mt-1 w-full rounded-md border-gray-300" required>
+                name="componentes[cpu]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500" required>
             <option value="">{{ __('Selecione') }}</option>
             <template x-for="item in opcoes.cpu" :key="item.id">
                 <option :value="item.id" x-text="item.nome + (item.fabricante ? ' — ' + item.fabricante : '')"></option>
@@ -133,7 +136,7 @@
     <div class="mt-4">
         <x-input-label for="componente_placa_mae" :value="__('Placa-mãe')" />
         <select id="componente_placa_mae" x-model.number="selecionados.placa_mae" @change="onPlacaMaeChange()"
-                name="componentes[placa_mae]" class="block mt-1 w-full rounded-md border-gray-300" required>
+                name="componentes[placa_mae]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500" required>
             <option value="">{{ __('Selecione') }}</option>
             <template x-for="item in opcoes.placa_mae" :key="item.id">
                 <option :value="item.id" x-text="item.nome + (item.fabricante ? ' — ' + item.fabricante : '')"></option>
@@ -149,7 +152,7 @@
         <template x-for="(item, index) in selecionados.ram" :key="index">
             <div class="flex items-center gap-2 mt-2">
                 <select x-model.number="item.componente_id" :name="`componentes[ram][${index}][componente_id]`"
-                        class="flex-1 rounded-md border-gray-300 text-sm" required>
+                        class="flex-1 rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" required>
                     <option value="">{{ __('Selecione') }}</option>
                     <template x-for="opcao in opcoes.ram" :key="opcao.id">
                         <option :value="opcao.id" x-text="opcao.nome"></option>
@@ -157,11 +160,11 @@
                 </select>
                 <input type="number" min="1" x-model.number="item.quantidade"
                        :name="`componentes[ram][${index}][quantidade]`"
-                       class="w-20 rounded-md border-gray-300 text-sm" required>
-                <button type="button" @click="removerRam(index)" class="text-red-600 text-sm">{{ __('Remover') }}</button>
+                       class="w-20 rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" required>
+                <button type="button" @click="removerRam(index)" class="rounded-md px-2 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">{{ __('Remover') }}</button>
             </div>
         </template>
-        <button type="button" @click="adicionarRam()" class="mt-2 text-sm text-brand-600 hover:underline">
+        <button type="button" @click="adicionarRam()" class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-3 py-1.5 text-sm font-medium text-brand-600 transition hover:border-brand-400 hover:bg-brand-50 dark:border-gray-600 dark:hover:bg-brand-900/30">
             {{ __('+ Adicionar RAM') }}
         </button>
         <x-input-error :messages="$errors->get('componentes.ram')" class="mt-2" />
@@ -173,7 +176,7 @@
         <template x-for="(item, index) in selecionados.armazenamento" :key="index">
             <div class="flex items-center gap-2 mt-2">
                 <select x-model.number="item.componente_id" :name="`componentes[armazenamento][${index}][componente_id]`"
-                        class="flex-1 rounded-md border-gray-300 text-sm" required>
+                        class="flex-1 rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" required>
                     <option value="">{{ __('Selecione') }}</option>
                     <template x-for="opcao in opcoes.armazenamento" :key="opcao.id">
                         <option :value="opcao.id" x-text="opcao.nome"></option>
@@ -181,11 +184,11 @@
                 </select>
                 <input type="number" min="1" x-model.number="item.quantidade"
                        :name="`componentes[armazenamento][${index}][quantidade]`"
-                       class="w-20 rounded-md border-gray-300 text-sm" required>
-                <button type="button" @click="removerArmazenamento(index)" class="text-red-600 text-sm">{{ __('Remover') }}</button>
+                       class="w-20 rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 text-sm" required>
+                <button type="button" @click="removerArmazenamento(index)" class="rounded-md px-2 py-1 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">{{ __('Remover') }}</button>
             </div>
         </template>
-        <button type="button" @click="adicionarArmazenamento()" class="mt-2 text-sm text-brand-600 hover:underline">
+        <button type="button" @click="adicionarArmazenamento()" class="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-3 py-1.5 text-sm font-medium text-brand-600 transition hover:border-brand-400 hover:bg-brand-50 dark:border-gray-600 dark:hover:bg-brand-900/30">
             {{ __('+ Adicionar armazenamento') }}
         </button>
         <x-input-error :messages="$errors->get('componentes.armazenamento')" class="mt-2" />
@@ -195,7 +198,7 @@
     <div class="mt-4">
         <x-input-label for="componente_gpu" :value="__('Placa de vídeo (opcional)')" />
         <select id="componente_gpu" x-model.number="selecionados.gpu" @change="onGpuChange()"
-                name="componentes[gpu]" class="block mt-1 w-full rounded-md border-gray-300">
+                name="componentes[gpu]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
             <option value="">{{ __('Nenhuma / integrada') }}</option>
             <template x-for="item in opcoes.gpu" :key="item.id">
                 <option :value="item.id" x-text="item.nome + (item.fabricante ? ' — ' + item.fabricante : '')"></option>
@@ -208,7 +211,7 @@
     <div class="mt-4">
         <x-input-label for="componente_fonte" :value="__('Fonte (opcional)')" />
         <select id="componente_fonte" x-model.number="selecionados.fonte" @change="onFonteChange()"
-                name="componentes[fonte]" class="block mt-1 w-full rounded-md border-gray-300">
+                name="componentes[fonte]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
             <option value="">{{ __('Não informado') }}</option>
             <template x-for="item in opcoes.fonte" :key="item.id">
                 <option :value="item.id" x-text="item.nome + (item.fabricante ? ' — ' + item.fabricante : '')"></option>
@@ -224,7 +227,7 @@
     <div class="mt-4">
         <x-input-label for="componente_gabinete" :value="__('Gabinete (opcional)')" />
         <select id="componente_gabinete" x-model.number="selecionados.gabinete"
-                name="componentes[gabinete]" class="block mt-1 w-full rounded-md border-gray-300">
+                name="componentes[gabinete]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
             <option value="">{{ __('Não informado') }}</option>
             <template x-for="item in opcoes.gabinete" :key="item.id">
                 <option :value="item.id" x-text="item.nome + (item.fabricante ? ' — ' + item.fabricante : '')"></option>
@@ -234,14 +237,15 @@
     </div>
 </div>
 
-<div class="mt-6">
+<div class="mt-8 border-t border-gray-200 pt-6">
+    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-4">{{ __('Anotações') }}</p>
     <x-input-label for="observacoes" :value="__('Observações')" />
-    <textarea id="observacoes" name="observacoes" rows="3" class="block mt-1 w-full rounded-md border-gray-300"
+    <textarea id="observacoes" name="observacoes" rows="3" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500"
               placeholder="Ex: IP, notas gerais">{{ $old('observacoes', $maquina->observacoes ?? '') }}</textarea>
     <x-input-error :messages="$errors->get('observacoes')" class="mt-2" />
 </div>
 
-<div class="flex items-center gap-4 mt-6">
-    <x-primary-button>{{ __('Salvar') }}</x-primary-button>
-    <a href="{{ route('maquinas.index') }}" class="text-sm text-gray-600 hover:underline">{{ __('Cancelar') }}</a>
+<div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
+    <a href="{{ route('maquinas.index') }}" class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">{{ __('Cancelar') }}</a>
+    <x-primary-button>{{ __('Salvar máquina') }}</x-primary-button>
 </div>

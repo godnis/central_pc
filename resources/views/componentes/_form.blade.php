@@ -9,7 +9,7 @@
 <div x-data="{ categoria: '{{ old('categoria', $componente->categoria->value ?? '') }}' }">
     <div>
         <x-input-label for="categoria" :value="__('Categoria')" />
-        <select id="categoria" name="categoria" x-model="categoria" class="block mt-1 w-full rounded-md border-gray-300" required @if($componente->exists) disabled @endif>
+        <select id="categoria" name="categoria" x-model="categoria" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500" required @if($componente->exists) disabled @endif>
             <option value="">{{ __('Selecione uma categoria') }}</option>
             @foreach ($categorias as $cat)
                 <option value="{{ $cat->value }}" @selected(old('categoria', $componente->categoria->value ?? '') === $cat->value)>
@@ -48,8 +48,8 @@
         </label>
     </div>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'cpu'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de processador') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'cpu'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de processador') }}</legend>
         <div>
             <x-input-label for="specs_socket_cpu" :value="__('Socket')" />
             <x-text-input id="specs_socket_cpu" name="specs[socket]" type="text" class="block mt-1 w-full"
@@ -62,8 +62,8 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'placa_mae'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de placa-mãe') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'placa_mae'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de placa-mãe') }}</legend>
         <div>
             <x-input-label for="specs_socket_placa" :value="__('Socket')" />
             <x-text-input id="specs_socket_placa" name="specs[socket]" type="text" class="block mt-1 w-full"
@@ -72,7 +72,7 @@
         <div class="mt-4">
             <x-input-label for="specs_form_factor" :value="__('Form factor')" />
             <input list="opcoes-form-factor" id="specs_form_factor" name="specs[form_factor]" type="text"
-                   class="block mt-1 w-full rounded-md border-gray-300 shadow-sm"
+                   class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500 shadow-sm"
                    value="{{ old('specs.form_factor', $specs['form_factor'] ?? '') }}">
             <datalist id="opcoes-form-factor">
                 @foreach ($formFactors as $opcao)
@@ -111,11 +111,11 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'ram'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de memória RAM') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'ram'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de memória RAM') }}</legend>
         <div>
             <x-input-label for="specs_tipo_ram" :value="__('Tipo')" />
-            <select id="specs_tipo_ram" name="specs[tipo]" class="block mt-1 w-full rounded-md border-gray-300">
+            <select id="specs_tipo_ram" name="specs[tipo]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
                 <option value="">{{ __('Selecione') }}</option>
                 @foreach ($tiposRam as $opcao)
                     <option value="{{ $opcao }}" @selected(old('specs.tipo', $specs['tipo'] ?? '') === $opcao)>{{ $opcao }}</option>
@@ -134,11 +134,11 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'armazenamento'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de armazenamento') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'armazenamento'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de armazenamento') }}</legend>
         <div>
             <x-input-label for="specs_tipo_armazenamento" :value="__('Tipo')" />
-            <select id="specs_tipo_armazenamento" name="specs[tipo]" class="block mt-1 w-full rounded-md border-gray-300">
+            <select id="specs_tipo_armazenamento" name="specs[tipo]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
                 <option value="">{{ __('Selecione') }}</option>
                 @foreach ($tiposArmazenamento as $opcao)
                     <option value="{{ $opcao }}" @selected(old('specs.tipo', $specs['tipo'] ?? '') === $opcao)>{{ $opcao }}</option>
@@ -147,7 +147,7 @@
         </div>
         <div class="mt-4">
             <x-input-label for="specs_interface" :value="__('Interface')" />
-            <select id="specs_interface" name="specs[interface]" class="block mt-1 w-full rounded-md border-gray-300">
+            <select id="specs_interface" name="specs[interface]" class="block mt-1 w-full rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500">
                 <option value="">{{ __('Selecione') }}</option>
                 @foreach ($interfacesArmazenamento as $opcao)
                     <option value="{{ $opcao }}" @selected(old('specs.interface', $specs['interface'] ?? '') === $opcao)>{{ $opcao }}</option>
@@ -161,8 +161,8 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'gpu'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de placa de vídeo') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'gpu'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de placa de vídeo') }}</legend>
         <div>
             <x-input-label for="specs_consumo_watts" :value="__('Consumo (watts)')" />
             <x-text-input id="specs_consumo_watts" name="specs[consumo_watts]" type="number" min="0" class="block mt-1 w-full"
@@ -170,8 +170,8 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'fonte'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de fonte') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'fonte'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de fonte') }}</legend>
         <div>
             <x-input-label for="specs_potencia_watts" :value="__('Potência (watts)')" />
             <x-text-input id="specs_potencia_watts" name="specs[potencia_watts]" type="number" min="0" class="block mt-1 w-full"
@@ -179,8 +179,8 @@
         </div>
     </fieldset>
 
-    <fieldset class="mt-6 border-t pt-4" x-show="categoria === 'gabinete'">
-        <legend class="text-sm font-semibold text-gray-700 mb-2">{{ __('Specs de gabinete') }}</legend>
+    <fieldset class="mt-8 border-t border-gray-200 pt-6" x-show="categoria === 'gabinete'">
+        <legend class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 mb-3">{{ __('Specs de gabinete') }}</legend>
         <div>
             <x-input-label :value="__('Form factors suportados')" />
             <div class="mt-1 flex flex-wrap gap-4">
@@ -195,8 +195,8 @@
         </div>
     </fieldset>
 
-    <div class="flex items-center gap-4 mt-6">
-        <x-primary-button>{{ __('Salvar') }}</x-primary-button>
-        <a href="{{ route('componentes.index') }}" class="text-sm text-gray-600 hover:underline">{{ __('Cancelar') }}</a>
+    <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
+        <a href="{{ route('componentes.index') }}" class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">{{ __('Cancelar') }}</a>
+        <x-primary-button>{{ __('Salvar componente') }}</x-primary-button>
     </div>
 </div>
