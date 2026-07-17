@@ -11,15 +11,15 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">{{ $maquina->nome }}</h2>
+            <h2 class="font-display font-semibold text-lg tracking-tight text-gray-800 dark:text-gray-100 leading-tight">{{ $maquina->nome }}</h2>
             <div class="flex items-center gap-3">
-                <a href="{{ route('maquinas.edit', $maquina) }}" class="text-sm text-indigo-600 hover:underline">{{ __('Editar') }}</a>
+                <a href="{{ route('maquinas.edit', $maquina) }}" class="text-sm text-brand-600 hover:underline">{{ __('Editar') }}</a>
                 <a href="{{ route('maquinas.index') }}" class="text-sm text-gray-600 hover:underline">{{ __('Voltar') }}</a>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('status'))

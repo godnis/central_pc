@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
+        <h2 class="font-display font-semibold text-lg tracking-tight text-gray-800 dark:text-gray-100 leading-tight">
             {{ __('Setores') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('status'))
@@ -16,7 +16,7 @@
 
             @can('editar')
                 <div class="mb-4">
-                    <a href="{{ route('setores.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
+                    <a href="{{ route('setores.create') }}" class="inline-flex items-center px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-brand-700">
                         {{ __('Novo setor') }}
                     </a>
                 </div>
@@ -36,7 +36,7 @@
                                 <td class="px-6 py-4">{{ $setor->nome }}</td>
                                 <td class="px-6 py-4 text-right space-x-2">
                                     @can('editar')
-                                        <a href="{{ route('setores.edit', $setor) }}" class="text-indigo-600 hover:underline">{{ __('Editar') }}</a>
+                                        <a href="{{ route('setores.edit', $setor) }}" class="text-brand-600 hover:underline">{{ __('Editar') }}</a>
                                     @endcan
                                     @can('excluir')
                                         <form action="{{ route('setores.destroy', $setor) }}" method="POST" class="inline"

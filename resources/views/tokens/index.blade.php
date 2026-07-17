@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">{{ __('Tokens de API') }}</h2>
+        <h2 class="font-display font-semibold text-lg tracking-tight text-gray-800 dark:text-gray-100 leading-tight">{{ __('Tokens de API') }}</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('status'))

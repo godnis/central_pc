@@ -107,7 +107,7 @@
      })">
     <div class="flex items-center justify-between">
         <h3 class="text-sm font-semibold text-gray-700">{{ __('Componentes') }}</h3>
-        <a href="{{ route('componentes.create') }}" target="_blank" class="text-xs text-indigo-600 hover:underline">
+        <a href="{{ route('componentes.create') }}" target="_blank" class="text-xs text-brand-600 hover:underline">
             {{ __('+ cadastrar componente no catálogo') }}
         </a>
     </div>
@@ -161,7 +161,7 @@
                 <button type="button" @click="removerRam(index)" class="text-red-600 text-sm">{{ __('Remover') }}</button>
             </div>
         </template>
-        <button type="button" @click="adicionarRam()" class="mt-2 text-sm text-indigo-600 hover:underline">
+        <button type="button" @click="adicionarRam()" class="mt-2 text-sm text-brand-600 hover:underline">
             {{ __('+ Adicionar RAM') }}
         </button>
         <x-input-error :messages="$errors->get('componentes.ram')" class="mt-2" />
@@ -185,7 +185,7 @@
                 <button type="button" @click="removerArmazenamento(index)" class="text-red-600 text-sm">{{ __('Remover') }}</button>
             </div>
         </template>
-        <button type="button" @click="adicionarArmazenamento()" class="mt-2 text-sm text-indigo-600 hover:underline">
+        <button type="button" @click="adicionarArmazenamento()" class="mt-2 text-sm text-brand-600 hover:underline">
             {{ __('+ Adicionar armazenamento') }}
         </button>
         <x-input-error :messages="$errors->get('componentes.armazenamento')" class="mt-2" />

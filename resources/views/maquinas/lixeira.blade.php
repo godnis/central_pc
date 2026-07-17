@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">{{ __('Lixeira de máquinas') }}</h2>
+            <h2 class="font-display font-semibold text-lg tracking-tight text-gray-800 dark:text-gray-100 leading-tight">{{ __('Lixeira de máquinas') }}</h2>
             <a href="{{ route('maquinas.index') }}" class="text-sm text-gray-600 hover:underline">{{ __('Voltar') }}</a>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('status'))
@@ -32,7 +32,7 @@
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                                     <form action="{{ route('maquinas.restaurar', $maquina->id) }}" method="POST" class="inline">
                                         @csrf
-                                        <button type="submit" class="text-indigo-600 hover:underline">{{ __('Restaurar') }}</button>
+                                        <button type="submit" class="text-brand-600 hover:underline">{{ __('Restaurar') }}</button>
                                     </form>
                                     <form action="{{ route('maquinas.excluirDefinitivamente', $maquina->id) }}" method="POST" class="inline"
                                           onsubmit="return confirm('{{ __('Excluir definitivamente? Essa ação não pode ser desfeita.') }}');">

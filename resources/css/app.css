@@ -104,4 +104,16 @@
     .dark .focus\:text-gray-700:focus {
         color: theme('colors.gray.200');
     }
+    /* Links da marca precisam clarear no escuro pra manter contraste. */
+    .dark .text-brand-600 {
+        color: theme('colors.brand.300');
+    }
+    .dark .hover\:text-brand-600:hover {
+        color: theme('colors.brand.300');
+    }
+}
+
+::selection {
+    background-color: theme('colors.brand.200');
+    color: theme('colors.brand.950');
 }
