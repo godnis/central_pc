@@ -5,7 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Central PC') }}</title>
+        <title>{{ config('app.name', 'Comunhão Espírita') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/fivecom-icon.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -58,11 +59,8 @@
 
                 <div class="relative">
                     <div class="flex items-center gap-3">
-                        <x-application-logo class="h-10 w-10 text-brand-300" />
-                        <div>
-                            <p class="font-display text-xl font-bold tracking-tight">Central PC</p>
-                            <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300">Inventário de hardware</p>
-                        </div>
+                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Comunhão Espírita') }}" class="h-10 w-auto rounded-md" />
+                        <p class="font-display text-xl font-bold tracking-tight">Comunhão Espírita</p>
                     </div>
                 </div>
 
@@ -76,6 +74,7 @@
                 <div class="relative">
                     <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-300/80">{{ __('Oferecimento') }}</p>
                     <p class="mt-1 font-display text-3xl font-bold tracking-tight text-copper-400">Vitor e Matheus</p>
+                    <p class="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-brand-300/60">Fivecom · Tecnologia em informática</p>
                 </div>
             </div>
 
@@ -83,14 +82,16 @@
             <div class="flex min-h-screen items-center justify-center bg-white px-6 py-12 dark:bg-gray-900 lg:min-h-0">
                 <div class="w-full max-w-sm">
                     <div class="mb-10 flex items-center gap-3 lg:hidden">
-                        <x-application-logo class="h-9 w-9 text-brand-600 dark:text-brand-300" />
-                        <div>
-                            <p class="font-display text-lg font-bold tracking-tight">Central PC</p>
-                            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-600 dark:text-brand-300">Inventário de hardware</p>
-                        </div>
+                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Comunhão Espírita') }}" class="h-9 w-auto rounded-md" />
+                        <p class="font-display text-lg font-bold tracking-tight">Comunhão Espírita</p>
                     </div>
 
                     {{ $slot }}
+
+                    <div class="mt-10 flex items-center justify-center gap-2 lg:hidden">
+                        <img src="{{ asset('images/fivecom-icon.png') }}" alt="Fivecom" class="h-5 w-5" />
+                        <span class="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Fivecom · Tecnologia em informática</span>
+                    </div>
                 </div>
             </div>
         </div>

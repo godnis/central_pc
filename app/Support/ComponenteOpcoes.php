@@ -16,7 +16,7 @@ class ComponenteOpcoes
 
     public static function tiposRam(): array
     {
-        return ['DDR3', 'DDR4', 'DDR5'];
+        return ['DDR2', 'DDR3', 'DDR4', 'DDR5'];
     }
 
     public static function interfacesArmazenamento(): array
